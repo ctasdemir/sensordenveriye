@@ -39,7 +39,5 @@ void sensorTest_print_gyro_values(void)
     MPU6050_read_data(&sensorData);
 
     len = sprintf(buffer,"Gyro: X:%f Y:%f Z:%f\n",sensorData.gyro.X, sensorData.gyro.Y, sensorData.gyro.Z );
-
-
     CDC_Transmit_FS((uint8_t *)buffer, len);
 }

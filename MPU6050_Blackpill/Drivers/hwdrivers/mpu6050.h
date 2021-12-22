@@ -2,7 +2,7 @@
  * mpu6050.h
  *
  *  Created on: Dec 15, 2021
- *      Author: coskun
+ *      Author: C.TASDEMIR
  ****************************************************/
 
 #ifndef HWDRIVERS_MPU6050_H_
@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include "stm32f4xx_hal.h"
+#include "sensordriver.h"
 
 #define MPU6050_I2C_ADRESS_AD0 ( 0x68<<1 )
 #define MPU6050_I2C_ADRESS_AD1 ( 0x69<<1 )
@@ -44,6 +45,10 @@
 #define MPU_REG_FIFO_R_W	( 116 )
 #define MPU_REG_WHO_AM_I	( 117 )
 
+#define MPU_BIT_PWR_MGMT_1_SLEEP_MODE ( 6 )
+#define MPU_REG_GYRO_CONFIG_GYRO_RANGE_BITS_POSITION ( 3 )
+#define MPU_REG_ACC_CONFIG_ACC_RANGE_BITS_POSITION ( 3 )
+
 
 typedef enum {
 	FS_250, // 0
@@ -60,14 +65,14 @@ typedef enum {
 }afs_sel_e;
 
 typedef enum {
-	SENSOR_OK,
-	SENSOR_ERROR
-}sensor_status_e;
+	SLEEPMODE_OFF,
+	SLEEPMODE_ON
+}sleepmode_e;
 
 typedef struct {
-	uint16_t X;
-	uint16_t Y;
-	uint16_t Z;
+	int16_t X;
+	int16_t Y;
+	int16_t Z;
 }AxisRawVal_t;
 
 typedef struct {
@@ -81,15 +86,16 @@ typedef struct {
 	AxisRawVal_t gyroRaw;
 	AxisVal_t acc;
 	AxisVal_t gyro;
+	double acc_co;
+	double gyro_co;
 }SensorData_t;
 
 
 
-sensor_status_e MPU6050_initialize(fs_sel_e gyroConfig, afs_sel_e acc_config );
-sensor_status_e MPU6050_set_sleep_mode_on(void);
-sensor_status_e MPU6050_set_sleep_mode_off(void);
-sensor_status_e MPU6050_read_data(SensorData_t pSensorData);
+sensor_status_e MPU6050_initialize( SensorData_t *pSensor, fs_sel_e gyroConfig, afs_sel_e acc_config );
+sensor_status_e MPU6050_set_sleep_mode(sleepmode_e sleemode);
+sensor_status_e MPU6050_read_data(SensorData_t *pSensorData);
 sensor_status_e MPU6050_test_sensor(void);
-sensor_status_e MPU6050_read_id(void);
+uint8_t MPU6050_read_id(void);
 
 #endif /* HWDRIVERS_MPU6050_H_ */

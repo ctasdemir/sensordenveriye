@@ -19,10 +19,12 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "usb_device.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "sensortest.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,8 +53,6 @@ I2C_HandleTypeDef hi2c1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
-static int16_t MPU6050_TestSensor(void);
-static int32_t MPU6050_ReadID(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -91,6 +91,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_I2C1_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -99,58 +100,20 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
- MPU6050_TestSensor();
- MPU6050_ReadID();
+  sensorTest_init();
+
 
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  HAL_GPIO_TogglePin( GPIOC, GPIO_PIN_13 );
-	  HAL_Delay(500);
+		HAL_GPIO_TogglePin( GPIOC, GPIO_PIN_13);
+		sensorTest_print_acc_values();
+		HAL_Delay(100);
   }
   /* USER CODE END 3 */
 }
-
-int16_t MPU6050_TestSensor()
-{
-	HAL_StatusTypeDef status;
-
-	status = HAL_I2C_IsDeviceReady(&hi2c1, (0x69<<1), 4, 100);
-
-	if ( HAL_OK == status ) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
-}
-
-
-int32_t MPU6050_ReadID(void)
-{
-	int32_t idVal = 0;
-	int8_t buffer[1];
-	HAL_StatusTypeDef status;
-
-	status = HAL_I2C_Mem_Read(&hi2c1, (0x69<<1), 0x75, 1, buffer, 1, 100);
-
-	if(  HAL_OK != status  )
-	{
-		//todo
-	}
-
-	if ( 0x68 == buffer[0] ) {
-		return 1;
-	}
-	else {
-		return 0;
-	}
-
-}
-
-
 
 /**
   * @brief System Clock Configuration
